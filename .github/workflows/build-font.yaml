@@ -1,0 +1,41 @@
+name: Build font
+on:
+  push:
+    paths:
+      - 'private-build-plans.toml'
+  workflow_dispatch:
+
+jobs:
+ build_font:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - run: sudo apt install ttfautohint
+    - name: Download Iosevka source
+      run: |
+        VER=$(awk 'NR==1{print $2}' private-build-plans.toml)
+        curl -Lo "$VER.zip" "https://github.com/be5invis/Iosevka/archive/refs/tags/$VER.zip"
+        unzip "$VER.zip"
+        mv Iosevka-*/* .
+    - name: Install npm packages
+      run: |
+        npm install
+    - name: Build custom Iosevka
+      run: |
+        npm run build -- ttf::biosevka
+    - name: Setup git config
+      run: |
+        # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+    - name: Commit dist
+      run: |
+        git add dist/
+        git commit -m "update dist"
+        git push origin master
+        VER=$(awk 'NR==1{print $2}' private-build-plans.toml)
+        git tag -f $VER
+        git push -f origin $VER
