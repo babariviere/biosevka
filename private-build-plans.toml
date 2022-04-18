@@ -1,0 +1,12 @@
+# v15.2.0
+
+[buildPlans.biosevka]
+family = "Biosevka"
+spacing = "fixed"
+serifs = "sans"
+no-cv-ss = true
+
+[buildPlans.biosevka.widths.normal]
+shape = 550
+menu = 5
+css = "normal"
